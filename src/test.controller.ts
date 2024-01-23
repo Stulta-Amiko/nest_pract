@@ -20,6 +20,11 @@ export class TestController {
 
   @Get('bus/:name')
   getBustest(@Param() params: any): string {
-    return this.testService.getBus(params);
+    return this.testService.getTerminalByName(params);
+  }
+
+  @Get('bus/dest/:name')
+  getDestTest(@Param() params: any): Promise<string> {
+    return this.testService.getDestinationByTerminal(params);
   }
 }
