@@ -19,12 +19,12 @@ export class TestController {
   }
 
   @Get('bus/:name')
-  getBustest(@Param() params: any): string {
+  getBustest(@Param() params: any): Promise<string | string[]> {
     return this.testService.getTerminalByName(params);
   }
 
   @Get('bus/dest/:name')
-  getDestTest(@Param() params: any): Promise<string> {
+  getDestTest(@Param() params: any): Promise<string[]> {
     return this.testService.getDestinationByTerminal(params);
   }
 }

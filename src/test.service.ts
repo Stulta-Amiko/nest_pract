@@ -19,58 +19,62 @@ export class TestService {
     return `Test Params Return ${params.id ? params.id : params.name}`;
   }
 
-  getTerminalByName(@Param() params: any): string {
-    this.httpService
-      .get(
-        `${this.configService.get<string>('API_URL')}/getExpBusTmnList?serviceKey=${this.configService.get<string>('API_KEY')}&_type=json&tmnNm=${params.name}`,
-      )
-      .subscribe((response) => {
-        const item = response.data.response.body.items.item;
-        console.log(item);
-        console.log(
-          Array.isArray(item)
-            ? item.map((item) =>
-                item.tmnNm == params.name ? params.name : false,
-              )
-            : false,
-        );
-        console.log(
-          Array.isArray(item) ? item.map((item) => item.tmnNm) : item.tmnNm,
-        );
-      });
-    return `return test`;
-  }
-
-  async getDestinationByTerminal(@Param() params: any): Promise<string> {
-    const apiRes = await firstValueFrom(
-      this.httpService.get(
-        `${this.configService.get<string>('API_URL')}/getExpBusTmnList?serviceKey=${this.configService.get<string>('API_KEY')}&_type=json&tmnNm=${params.name}`,
-      ),
-    );
-    const apiResTest = apiRes.data.response.body.items.item;
-    let tmnCode;
-
-    Array.isArray(apiResTest)
-      ? apiResTest.map((item) =>
-          item.tmnNm === params.name
-            ? (tmnCode = item.tmnCd)
-            : 'server error occurred',
-        )
-      : (tmnCode = apiResTest.tmnCd);
-    console.log(tmnCode);
+  async getTerminalByName(@Param() params: any): Promise<string | string[]> {
     try {
-      this.httpService
-        .get(
-          `${this.configService.get<string>('API_URL')}/getArrTmnFromDepTmn?serviceKey=${this.configService.get<string>('API_KEY')}&numOfRows=100&_type=json&depTmnCd=${tmnCode}`,
-        )
-        .subscribe((res) => {
-          const destItem = res.data.response.body.items.item;
-          console.log(destItem);
-        });
+      const apiRes = await firstValueFrom(
+        this.httpService.get(
+          `${this.configService.get<string>('API_URL')}/getExpBusTmnList?serviceKey=${this.configService.get<string>('API_KEY')}&_type=json&tmnNm=${params.name}`,
+        ),
+      );
+      const resItem = apiRes.data.response.body.items;
+      if (Array.isArray(resItem)) {
+        return resItem;
+      } else {
+        return resItem.item;
+      }
     } catch (e) {
       console.log(e);
       return e;
     }
-    return `return test`;
+  }
+
+  async getDestinationByTerminal(@Param() params: any): Promise<string[]> {
+    let tmnCode: string;
+    try {
+      const getTmnNameRes = await firstValueFrom(
+        this.httpService.get(
+          `${this.configService.get<string>('API_URL')}/getExpBusTmnList?serviceKey=${this.configService.get<string>('API_KEY')}&_type=json&tmnNm=${params.name}`,
+        ),
+      );
+
+      const getTmnCode = (res: any): string => {
+        if (Array.isArray(res)) {
+          const code = res.find((item) => item.tmnNm === params.name);
+          return code.tmnCd.toString();
+        } else {
+          return res.tmnCd;
+        }
+      };
+
+      const nameRes = getTmnNameRes.data.response.body.items.item;
+      tmnCode = getTmnCode(nameRes);
+      console.log(tmnCode);
+    } catch (e) {
+      console.log(`name based Terminal code 조회시 오류발생`);
+      return e;
+    }
+
+    try {
+      const getDestRes = await firstValueFrom(
+        this.httpService.get(
+          `${this.configService.get<string>('API_URL')}/getArrTmnFromDepTmn?serviceKey=${this.configService.get<string>('API_KEY')}&numOfRows=100&_type=json&depTmnCd=${tmnCode}`,
+        ),
+      );
+      console.log(getDestRes);
+      return getDestRes.data.response.body.items.item;
+    } catch (e) {
+      console.log();
+      return e;
+    }
   }
 }
