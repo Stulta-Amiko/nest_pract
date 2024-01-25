@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Body } from '@nestjs/common';
+import { Controller, Get, Param, Body, Query } from '@nestjs/common';
 import { TestService } from './test.service';
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
@@ -26,5 +26,12 @@ export class TestController {
   @Get('bus/dest/:name')
   getDestTest(@Param() params: any): Promise<string[]> {
     return this.testService.getDestinationByTerminal(params);
+  }
+  @Get('bus/info/route')
+  getRouteTest(
+    @Query('depTmn') depTmn: any,
+    @Query('arrTmn') arrTmn: any,
+  ): Promise<string> {
+    return this.testService.getBusInformationDepArr(depTmn, arrTmn);
   }
 }
