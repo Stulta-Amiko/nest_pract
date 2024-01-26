@@ -31,7 +31,8 @@ export class TestController {
   getRouteTest(
     @Query('depTmn') depTmn: any,
     @Query('arrTmn') arrTmn: any,
+    @Query('date') date: any,
   ): Promise<string> {
-    return this.testService.getBusInformationDepArr(depTmn, arrTmn);
+    return this.testService.getBusInformationDepArr(depTmn, arrTmn, date);
   }
 }
