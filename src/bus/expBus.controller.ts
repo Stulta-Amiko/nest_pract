@@ -1,38 +1,44 @@
 import { Controller, Get, Param, Body, Query } from '@nestjs/common';
-import { TestService } from './test.service';
+import { ExpBusService } from './expBus.service';
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
 
 @Controller('test')
-export class TestController {
-  constructor(private readonly testService: TestService) {}
+export class ExpBusController {
+  constructor(private readonly expBusService: ExpBusService) {}
 
   @Get()
   getTest(@Param() params: any): string {
     console.log();
-    return this.testService.getTest();
+    return this.expBusService.getTest();
   }
 
   @Get('id/:id')
   getParamsId(@Param() params: any): string {
-    return this.testService.getParam(params);
+    return this.expBusService.getParam(params);
   }
 
   @Get('bus/:name')
   getBustest(@Param() params: any): Promise<string | string[]> {
-    return this.testService.getTerminalByName(params);
+    return this.expBusService.getTerminalByName(params);
   }
 
   @Get('bus/dest/:name')
   getDestTest(@Param() params: any): Promise<string[]> {
-    return this.testService.getDestinationByTerminal(params);
+    return this.expBusService.getDestinationByTerminal(params);
   }
   @Get('bus/info/route')
   getRouteTest(
     @Query('depTmn') depTmn: any,
     @Query('arrTmn') arrTmn: any,
     @Query('date') date: any,
-  ): Promise<string> {
-    return this.testService.getBusInformationDepArr(depTmn, arrTmn, date);
+    @Query('busGrade') busGrade: any,
+  ): Promise<string[]> {
+    return this.expBusService.getBusInformationDepArr(
+      depTmn,
+      arrTmn,
+      date,
+      busGrade,
+    );
   }
 }
