@@ -143,10 +143,11 @@ export class ExpBusService {
         grade = 0;
         break;
     }
+    /*환승하는 경우 코드 추가 예정*/
 
     try {
       if (grade === 0) {
-        let resArr: string[] = [];
+        /*let resArr: string[] = [];
         for (let i = 1; i <= 8; i++) {
           const getBusRoute = await firstValueFrom(
             this.httpService.get(
@@ -155,8 +156,14 @@ export class ExpBusService {
           );
           const route = getBusRoute.data.response.body.items.item;
           if (route != null) resArr = [...resArr, ...route];
-        }
-        return resArr;
+        }*/
+        const getBusRoute = await firstValueFrom(
+          this.httpService.get(
+            `${this.configService.get<string>('API_URL')}/ExpBusInfoService/getStrtpntAlocFndExpbusInfo?serviceKey=${this.configService.get<string>('API_KEY')}&_type=json&depTerminalId=NAEK${depTmnCode}&arrTerminalId=NAEK${arrTmnCode}&depPlandTime=${date === 'today' ? today : date}`,
+          ),
+        );
+        const routeRes = getBusRoute.data.response.body.items.item;
+        return routeRes;
       } else {
         const getBusRoute = await firstValueFrom(
           this.httpService.get(
